@@ -19,12 +19,10 @@
       </p>
     </div>
 
-    @if (in_array(auth()->user()->role, ['admin', 'project_manager']))
     <a href="{{ route('projects.create') }}" class="btn-project-primary">
       <i class="fa-solid fa-plus"></i>
       <span>Tambah Proyek</span>
     </a>
-    @endif
   </div>
 
   {{-- Notifications --}}
@@ -97,8 +95,7 @@
           <tr>
             <th class="column-number">No.</th>
             <th>Nama Proyek</th>
-            <th>Manager</th>
-            <th>Jumlah Tugas</th>
+            <th>Tugas</th>
             <th>Tanggal Mulai</th>
             <th>Tanggal Selesai</th>
             <th>Status</th>
@@ -108,7 +105,8 @@
 
         <tbody>
           @forelse($projects as $project)
-          <tr>
+          <tr class="project-row"
+            onclick="window.location='{{ route('projects.show', $project) }}'">
             <td class="column-number">
               {{ $projects->firstItem() + $loop->index }}
             </td>
@@ -120,17 +118,6 @@
 
               <div class="project-description">
                 {{ $project->description ?: 'Tidak ada deskripsi' }}
-              </div>
-            </td>
-
-            <td>
-              <div class="project-manager">
-                <span class="manager-avatar">
-                  <i class="fa-solid fa-user"></i>
-                </span>
-                <span>
-                  {{ $project->manager?->name ?? 'Belum ditentukan' }}
-                </span>
               </div>
             </td>
 
@@ -174,29 +161,18 @@
             </td>
 
             <td>
-              <div class="project-actions">
+              <div class="project-actions" onclick="event.stopPropagation();">
                 {{-- Semua role dapat melihat detail proyek --}}
-                <a
-                  href="{{ route('projects.show', $project) }}"
-                  class="project-action-btn action-detail"
-                  title="Detail proyek"
-                  aria-label="Detail proyek">
-                  <i class="fa-solid fa-eye"></i>
-                </a>
 
-                {{-- Admin dan Project Manager dapat mengedit proyek --}}
-                @if (in_array(auth()->user()->role, ['admin', 'project_manager']))
                 <a
                   href="{{ route('projects.edit', $project) }}"
                   class="project-action-btn action-edit"
                   title="Edit proyek"
                   aria-label="Edit proyek">
                   <i class="fa-solid fa-pen"></i>
+                  Edit
                 </a>
-                @endif
 
-                {{-- Hanya Admin yang dapat menghapus proyek --}}
-                @if (auth()->user()->role === 'admin')
                 <form
                   action="{{ route('projects.destroy', $project) }}"
                   method="POST"
@@ -210,9 +186,9 @@
                     title="Hapus proyek"
                     aria-label="Hapus proyek">
                     <i class="fa-solid fa-trash"></i>
+                    Delete
                   </button>
                 </form>
-                @endif
               </div>
             </td>
           </tr>
@@ -227,12 +203,10 @@
                 <h3>Belum Ada Proyek</h3>
                 <p>Tambahkan proyek pertama untuk mulai mengelola pekerjaan tim.</p>
 
-                @if (in_array(auth()->user()->role, ['admin', 'project_manager']))
                 <a href="{{ route('projects.create') }}" class="btn-project-primary">
                   <i class="fa-solid fa-plus"></i>
                   Tambah Proyek
                 </a>
-                @endif
               </div>
             </td>
           </tr>

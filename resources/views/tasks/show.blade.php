@@ -22,15 +22,11 @@
        <span>Detail Task</span>
      </nav>
 
-     @if (
-     auth()->user()->role === 'manager' &&
-     $task->project?->manager_id === auth()->id()
-     )
      <a href="{{ route('tasks.edit', $task->id) }}" class="task-detail-edit">
        <i class="fas fa-pen"></i>
        Edit Task
      </a>
-     @endif
+
    </div>
 
    @if (session('success'))
@@ -70,31 +66,41 @@
      </div>
 
      <div class="task-detail-body">
-       <div class="task-detail-section">
-         <h3>Deskripsi Task</h3>
-         <p class="task-detail-description">
-           {{ $task->description ?: 'Belum ada deskripsi untuk task ini.' }}
-         </p>
+       <div class="task-detail-grid">
+         <div class="task-detail-section">
+           <h3>Deskripsi</h3>
+           <p class="task-detail-description">
+             {{ $task->description ?: 'Belum ada deskripsi untuk task ini.' }}
+           </p>
+         </div>
+
+         <div class="task-detail-section">
+           <h3>Note</h3>
+
+           <form action="{{ route('tasks.updateNote', $task->id) }}"
+             method="POST"
+             class="task-progress-inline-form d-flex align-items-center gap-2 w-100">
+             @csrf
+             @method('PATCH')
+
+             <input type="text"
+               name="note"
+               class="form-control flex-grow-1"
+               value="{{ $task->note }}"
+               placeholder="Masukkan catatan"
+               required>
+
+             <button type="submit" title="Simpan catatan" aria-label="Simpan catatan">
+               <i class="fas fa-save"></i>
+             </button>
+           </form>
+         </div>
        </div>
 
        <div class="task-detail-section">
          <h3>Informasi Pengerjaan</h3>
 
          <div class="task-detail-grid">
-           <div class="task-detail-item">
-             <span>Penanggung Jawab</span>
-             <strong>
-               {{ $task->assignee?->name ?? 'Belum ditentukan' }}
-             </strong>
-           </div>
-
-           <div class="task-detail-item">
-             <span>Dibuat Oleh</span>
-             <strong>
-               {{ $task->creator?->name ?? 'Tidak diketahui' }}
-             </strong>
-           </div>
-
            <div class="task-detail-item">
              <span>Prioritas</span>
              <strong class="priority-{{ $task->priority }}">
@@ -129,7 +135,6 @@
            </div>
 
            <div class="update-task-group">
-             @if (auth()->id() === $task->assigned_to)
              <form action="{{ route('tasks.updateProgress', $task->id) }}"
                method="POST" class="task-progress-inline-form">
                @csrf
@@ -145,7 +150,6 @@
                  <i class="fas fa-save"></i>
                </button>
              </form>
-             @endif
            </div>
          </div>
        </div>

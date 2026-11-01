@@ -13,16 +13,14 @@ class TaskController extends Controller
     {
         $user = auth()->user();
 
-        $query = Task::with(['project', 'assignee', 'creator']);
+        // Admin tidak memiliki akses ke manajemen task
+        abort_if($user->role !== 'user', 403);
 
-        // Filter task berdasarkan role
-        if ($user->role === 'manager') {
-            $query->whereHas('project', function ($q) use ($user) {
-                $q->where('manager_id', $user->id);
+        // Ambil task dari proyek milik user yang login
+        $query = Task::with('project')
+            ->whereHas('project', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
             });
-        } elseif ($user->role === 'member') {
-            $query->where('assigned_to', $user->id);
-        }
 
         // Pencarian task
         if ($request->filled('search')) {
@@ -32,11 +30,6 @@ class TaskController extends Controller
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             });
-        }
-
-        // Filter status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
         }
 
         // Filter prioritas
@@ -49,39 +42,31 @@ class TaskController extends Controller
             $query->where('project_id', $request->project_id);
         }
 
-        $tasks = $query
+        // Daftar task
+        $tasks = (clone $query)
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        // Daftar proyek sesuai role
-        $projects = Project::query()
-            ->when($user->role === 'manager', function ($q) use ($user) {
-                $q->where('manager_id', $user->id);
-            })
-            ->when($user->role === 'member', function ($q) use ($user) {
-                $q->whereHas('tasks', function ($taskQuery) use ($user) {
-                    $taskQuery->where('assigned_to', $user->id);
-                });
-            })
+        // Daftar proyek milik user
+        $projects = Project::where('user_id', $user->id)
             ->orderBy('name')
             ->get();
 
-        // Statistik berdasarkan task yang dapat diakses pengguna
-        $statsQuery = clone $query;
-
-        $inProgressTasks = (clone $statsQuery)
-            ->where('status', 'in_progress')
+        // Statistik task berdasarkan progress
+        $inProgressTasks = (clone $query)
+            ->where('progress', '>', 0)
+            ->where('progress', '<', 100)
             ->count();
 
-        $completedTasks = (clone $statsQuery)
-            ->where('status', 'completed')
+        $completedTasks = (clone $query)
+            ->where('progress', 100)
             ->count();
 
-        $overdueTasks = (clone $statsQuery)
+        $overdueTasks = (clone $query)
             ->whereNotNull('deadline')
             ->whereDate('deadline', '<', now()->toDateString())
-            ->where('status', '!=', 'completed')
+            ->where('progress', '<', 100)
             ->count();
 
         return view('tasks.index', compact(
@@ -92,32 +77,30 @@ class TaskController extends Controller
             'overdueTasks'
         ));
     }
-
     public function create(Request $request)
     {
+        $user = auth()->user();
+
+        $projects = Project::where('user_id', $user->id)
+            ->orderBy('name')
+            ->get();
+
         $selectedProject = null;
 
         if ($request->filled('project_id')) {
-            $selectedProject = Project::findOrFail($request->query('project_id'));
+            $selectedProject = $projects->firstWhere(
+                'id',
+                $request->query('project_id')
+            );
+
+            abort_if(!$selectedProject, 404);
         }
-
-        $user = auth()->user();
-
-        $projects = Project::when(
-            $user->role === 'manager',
-            function ($query) use ($user) {
-                $query->where('manager_id', $user->id);
-            }
-        )->orderBy('name')->get();
-        $users = User::orderBy('name')->get();
 
         return view('tasks.create', compact(
             'projects',
-            'users',
             'selectedProject'
         ));
     }
-
 
     public function store(Request $request)
     {
@@ -125,17 +108,22 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'nullable|exists:users,id',
             'deadline' => 'nullable|date',
             'priority' => 'required|in:low,medium,high,urgent',
-            'status' => 'required|in:todo,in_progress,review,completed',
             'progress' => 'nullable|integer|min:0|max:100',
         ]);
 
-        $validated['progress'] = (int) ($validated['progress'] ?? 0);
-        $validated['created_by'] = auth()->id();
+        $project = Project::where('user_id', auth()->id())
+            ->findOrFail($validated['project_id']);
 
-        Task::create($validated);
+        Task::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'project_id' => $project->id,
+            'deadline' => $validated['deadline'] ?? null,
+            'priority' => $validated['priority'],
+            'progress' => (int) ($validated['progress'] ?? 0),
+        ]);
 
         return redirect()
             ->route('tasks.index')
@@ -147,36 +135,59 @@ class TaskController extends Controller
     {
         return view('tasks.show', compact('task'));
     }
-
     public function edit(Task $task)
     {
         $user = auth()->user();
 
-        $projects = Project::when(
-            $user->role === 'manager',
-            function ($query) use ($user) {
-                $query->where('manager_id', $user->id);
-            }
-        )->orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        // Pastikan task berada dalam proyek milik user yang login
+        $project = Project::where('user_id', $user->id)
+            ->findOrFail($task->project_id);
 
-        return view('tasks.edit', compact('task', 'projects', 'users'));
+        $projects = Project::where('user_id', $user->id)
+            ->orderBy('name')
+            ->get();
+
+        return view('tasks.edit', compact('task', 'projects'));
     }
 
     public function update(Request $request, Task $task)
     {
+        $user = auth()->user();
+
+        // Pastikan task berada dalam proyek milik user yang login
+        Project::where('user_id', $user->id)
+            ->findOrFail($task->project_id);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'note' => 'nullable|string',
             'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'nullable|exists:users,id',
             'deadline' => 'nullable|date',
             'priority' => 'required|in:low,medium,high,urgent',
-            'status' => 'required|in:todo,in_progress,review,completed',
             'progress' => 'required|integer|min:0|max:100',
+        ], [
+            'title.required' => 'Nama task wajib diisi.',
+            'project_id.required' => 'Proyek wajib dipilih.',
+            'priority.required' => 'Prioritas wajib dipilih.',
+            'progress.required' => 'Progress wajib diisi.',
+            'progress.min' => 'Progress minimal 0%.',
+            'progress.max' => 'Progress maksimal 100%.',
         ]);
 
-        $task->update($validated);
+        // Pastikan proyek tujuan juga milik user yang login
+        $project = Project::where('user_id', $user->id)
+            ->findOrFail($validated['project_id']);
+
+        $task->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'note' => $validated['note'] ?? null,
+            'project_id' => $project->id,
+            'deadline' => $validated['deadline'] ?? null,
+            'priority' => $validated['priority'],
+            'progress' => $validated['progress'],
+        ]);
 
         return redirect()
             ->route('tasks.show', $task->id)
@@ -202,21 +213,34 @@ class TaskController extends Controller
 
         $task->progress = $progress;
 
-        if ($progress === 0) {
-            // Progres 0% berarti task belum dikerjakan.
-            $task->status = 'todo';
-        } elseif ($progress === 100) {
-            // Progres 100% berarti task selesai.
-            $task->status = 'completed';
-        } else {
-            // Progres 1–99% berarti task sedang dikerjakan.
-            $task->status = 'in_progress';
-        }
-
         $task->save();
 
         return redirect()
             ->back()
             ->with('success', 'Progres dan status task berhasil diperbarui.');
+    }
+
+    public function updateNote(Request $request, Task $task)
+    {
+        $user = auth()->user();
+
+        // Pastikan task berada dalam proyek milik user yang login
+        Project::where('user_id', $user->id)
+            ->findOrFail($task->project_id);
+
+        $validated = $request->validate([
+            'note' => 'required|string|max:5000',
+        ], [
+            'note.required' => 'Catatan tidak boleh kosong.',
+            'note.max' => 'Catatan maksimal 5000 karakter.',
+        ]);
+
+        $task->update([
+            'note' => $validated['note'],
+        ]);
+
+        return redirect()
+            ->route('tasks.show', $task->id)
+            ->with('success', 'Catatan task berhasil diperbarui.');
     }
 }

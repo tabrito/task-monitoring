@@ -34,6 +34,7 @@
       </div>
 
       <nav>
+        @if(auth()->check() && in_array(auth()->user()->role, ['user']))
         <a href="{{ route('dashboard') }}"
           class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
           <i class="fa-solid fa-gauge-high"></i> Dashboard
@@ -48,8 +49,9 @@
           class="{{ request()->routeIs('tasks.*') ? 'active' : '' }}">
           <i class="fa-solid fa-list-check"></i> Tasks
         </a>
+        @endif
 
-        @if(auth()->check() && auth()->user()->role === 'admin')
+        @if(auth()->check() && in_array(auth()->user()->role, ['admin']))
         <a href="{{ route('users.index') }}"
           class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
           <i class="fa-solid fa-users"></i> Users

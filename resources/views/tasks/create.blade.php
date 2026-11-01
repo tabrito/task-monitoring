@@ -91,6 +91,16 @@
               @enderror
             </div>
 
+          </div>
+        </section>
+
+        <section class="task-form-section">
+          <div class="task-form-section-heading">
+            <h3>Jadwal dan Status</h3>
+            <p>Tentukan target penyelesaian dan prioritas tugas.</p>
+          </div>
+
+          <div class="task-form-grid">
             <div class="task-field">
               <label for="project_id">
                 Proyek <span class="required-mark">*</span>
@@ -134,43 +144,6 @@
             </div>
 
             <div class="task-field">
-              <label for="assigned_to">
-                Penanggung Jawab
-              </label>
-
-              <div class="task-input-wrapper">
-                <i class="fa-solid fa-users"></i>
-                <select
-                  name="assigned_to"
-                  id="assigned_to"
-                  class="form-select">
-                  <option value="">Pilih Penanggung Jawab</option>
-
-                  @foreach ($users as $user)
-                  <option
-                    value="{{ $user->id }}"
-                    {{ old('assigned_to') == $user->id ? 'selected' : '' }}>
-                    {{ $user->name }}
-                  </option>
-                  @endforeach
-                </select>
-              </div>
-
-              @error('assigned_to')
-              <small class="field-error">{{ $message }}</small>
-              @enderror
-            </div>
-          </div>
-        </section>
-
-        <section class="task-form-section">
-          <div class="task-form-section-heading">
-            <h3>Jadwal dan Status</h3>
-            <p>Tentukan target penyelesaian dan prioritas tugas.</p>
-          </div>
-
-          <div class="task-form-grid">
-            <div class="task-field">
               <label for="deadline">Deadline</label>
               <div class="task-input-wrapper">
                 <i class="fa-regular fa-calendar"></i>
@@ -207,32 +180,6 @@
                 </select>
               </div>
               @error('priority')
-              <small class="task-field-error">{{ $message }}</small>
-              @enderror
-            </div>
-
-            <div class="task-field">
-              <label for="status">
-                Status <span class="required-mark">*</span>
-              </label>
-              <div class="task-input-wrapper">
-                <i class="fa-solid fa-spinner"></i>
-                <select id="status" name="status" required>
-                  <option value="todo" {{ old('status', 'todo') == 'todo' ? 'selected' : '' }}>
-                    Belum Dimulai
-                  </option>
-                  <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>
-                    Sedang Dikerjakan
-                  </option>
-                  <option value="review" {{ old('status') == 'review' ? 'selected' : '' }}>
-                    Review
-                  </option>
-                  <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>
-                    Selesai
-                  </option>
-                </select>
-              </div>
-              @error('status')
               <small class="task-field-error">{{ $message }}</small>
               @enderror
             </div>

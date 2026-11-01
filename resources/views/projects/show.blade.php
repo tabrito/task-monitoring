@@ -19,12 +19,10 @@
        <span>Detail Proyek</span>
      </nav>
 
-     @if (in_array(auth()->user()->role, ['admin', 'project_manager']))
      <a href="{{ route('projects.edit', $project) }}" class="btn-project-edit">
        <i class="fa-solid fa-pen"></i>
        Edit Proyek
      </a>
-     @endif
    </div>
 
    @php
@@ -69,9 +67,9 @@
            </div>
 
            <div class="project-detail-item">
-             <span class="detail-label">Manajer Proyek</span>
+             <span class="detail-label">Jumlah Task</span>
              <span class="detail-value">
-               {{ $project->manager?->name ?? 'Belum ditentukan' }}
+               {{ $project->tasks->count() }} task
              </span>
            </div>
 
@@ -89,19 +87,6 @@
              </span>
            </div>
 
-           <div class="project-detail-item">
-             <span class="detail-label">Jumlah Task</span>
-             <span class="detail-value">
-               {{ $project->tasks->count() }} task
-             </span>
-           </div>
-
-           <div class="project-detail-item">
-             <span class="detail-label">Dibuat Pada</span>
-             <span class="detail-value">
-               {{ $project->created_at?->format('d/m/Y H:i') ?? '-' }}
-             </span>
-           </div>
          </div>
        </div>
 
@@ -125,13 +110,11 @@
 
            <div class="project-task-header-actions">
 
-             @if (in_array(auth()->user()->role, ['admin', 'project_manager']))
              <a href="{{ route('tasks.create', ['project_id' => $project->id]) }}"
                class="btn-project-primary">
                <i class="fa-solid fa-plus"></i>
                <span>Tambah Task</span>
              </a>
-             @endif
            </div>
          </div>
 

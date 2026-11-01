@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Project;
 
 class DashboardController extends Controller
 {
@@ -10,50 +11,51 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Query task berdasarkan role
-        $taskQuery = Task::query();
-
-        if ($user->role === 'manager') {
-            $taskQuery->whereHas('project', function ($query) use ($user) {
-                $query->where('manager_id', $user->id);
-            });
-        } elseif ($user->role === 'member') {
-            $taskQuery->where('assigned_to', $user->id);
+        // Admin langsung diarahkan ke menu manajemen user
+        if ($user->role === 'admin') {
+            return redirect()->route('users.index');
         }
 
-        // Total task
+        // Hanya user yang dapat mengakses dashboard task
+        abort_unless($user->role === 'user', 403);
+
+        // Query task berdasarkan proyek milik user
+        $taskQuery = Task::whereHas('project', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        });
+
         $totalTasks = (clone $taskQuery)->count();
 
-        // Task dalam pengerjaan
         $inProgressTasks = (clone $taskQuery)
-            ->where('status', 'in_progress')
+            ->where('progress', '>', 0)
+            ->where('progress', '<', 100)
             ->count();
 
-        // Task selesai
         $completedTasks = (clone $taskQuery)
-            ->where('status', 'completed')
+            ->where('progress', 100)
             ->count();
 
-        // Task terlambat
         $overdueTasks = (clone $taskQuery)
             ->whereNotNull('deadline')
             ->whereDate('deadline', '<', now()->toDateString())
-            ->where('status', '!=', 'completed')
+            ->where('progress', '<', 100)
             ->count();
 
-        // Lima task terbaru sesuai role
         $recentTasks = (clone $taskQuery)
-            ->with(['project', 'assignee'])
+            ->with('project')
             ->latest()
             ->take(5)
             ->get();
+
+        $totalProjects = Project::where('user_id', $user->id)->count();
 
         return view('dashboard.index', compact(
             'totalTasks',
             'inProgressTasks',
             'completedTasks',
             'overdueTasks',
-            'recentTasks'
+            'recentTasks',
+            'totalProjects'
         ));
     }
 }

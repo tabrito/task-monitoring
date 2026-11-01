@@ -9,13 +9,11 @@ class Task extends Model
     protected $fillable = [
         'title',
         'description',
+        'note',
         'project_id',
-        'assigned_to',
         'deadline',
         'priority',
-        'status',
         'progress',
-        'created_by',
     ];
 
     protected function casts(): array

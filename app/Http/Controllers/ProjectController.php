@@ -12,30 +12,21 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+
+        // Admin tidak memiliki akses manajemen proyek
+        abort_if($user->role !== 'user', 403);
+
         $search = trim($request->input('search', ''));
 
-        $projects = Project::with('manager')
+        $projects = Project::where('user_id', $user->id)
             ->withCount('tasks')
 
-            // Filter proyek berdasarkan role
-            ->when($user->role === 'manager', function ($query) use ($user) {
-                $query->where('manager_id', $user->id);
-            })
-            ->when($user->role === 'member', function ($query) use ($user) {
-                $query->whereHas('tasks', function ($taskQuery) use ($user) {
-                    $taskQuery->where('assigned_to', $user->id);
-                });
-            })
-
-            // Fitur pencarian proyek
+            // Pencarian proyek
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhere('status', 'like', "%{$search}%")
-                        ->orWhereHas('manager', function ($managerQuery) use ($search) {
-                            $managerQuery->where('name', 'like', "%{$search}%");
-                        });
+                        ->orWhere('status', 'like', "%{$search}%");
                 });
             })
 
@@ -48,11 +39,7 @@ class ProjectController extends Controller
 
     public function create()
     {
-        $managers = \App\Models\User::where('role', 'manager')
-            ->orderBy('name')
-            ->get();
-
-        return view('projects.create', compact('managers'));
+        return view('projects.create');
     }
 
     public function store(\Illuminate\Http\Request $request)
@@ -60,17 +47,21 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'manager_id' => 'nullable|exists:users,id',
-            'status' => 'required|in:planning,in_progress,completed,on_hold',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ], [
             'name.required' => 'Nama proyek wajib diisi.',
-            'manager_id.exists' => 'Manager yang dipilih tidak valid.',
             'end_date.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
         ]);
 
-        \App\Models\Project::create($validated);
+        \App\Models\Project::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'user_id' => auth()->id(),
+            'status' => 'planning',
+            'start_date' => $validated['start_date'] ?? null,
+            'end_date' => $validated['end_date'] ?? null,
+        ]);
 
         return redirect()
             ->route('projects.index')
@@ -86,20 +77,25 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        $users = User::orderBy('name')->get();
+        // Pastikan proyek merupakan milik user yang sedang login
+        abort_unless($project->user_id === auth()->id(), 403);
 
-        return view('projects.edit', compact('project', 'users'));
+        return view('projects.edit', compact('project'));
     }
 
     public function update(Request $request, Project $project)
     {
+        // Pastikan proyek merupakan milik user yang sedang login
+        abort_unless($project->user_id === auth()->id(), 403);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'manager_id' => 'required|exists:users,id',
-            'status' => 'required|in:on_track,concern,overdue,completed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+        ], [
+            'name.required' => 'Nama proyek wajib diisi.',
+            'end_date.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
         ]);
 
         $project->update($validated);

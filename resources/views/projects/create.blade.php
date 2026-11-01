@@ -103,77 +103,7 @@
               class="@error('description') is-invalid @enderror"
               placeholder="Jelaskan tujuan, ruang lingkup, atau hasil yang ingin dicapai...">{{ old('description') }}</textarea>
 
-            <small class="field-hint">
-              Berikan deskripsi singkat agar tim memahami tujuan proyek.
-            </small>
-
             @error('description')
-            <small class="field-error">{{ $message }}</small>
-            @enderror
-          </div>
-
-          {{-- Manager --}}
-          <div class="project-field">
-            <label for="manager_id">Manager Proyek</label>
-
-            <div class="project-input-wrapper">
-              <i class="fa-solid fa-user-tie"></i>
-
-              <select
-                id="manager_id"
-                name="manager_id"
-                class="@error('manager_id') is-invalid @enderror">
-                <option value="">Pilih manager proyek</option>
-
-                @foreach ($managers as $manager)
-                <option
-                  value="{{ $manager->id }}"
-                  @selected(old('manager_id')==$manager->id)>
-                  {{ $manager->name }}
-                </option>
-                @endforeach
-              </select>
-            </div>
-
-            <small class="field-hint">
-              Manager dapat ditentukan sesuai kebutuhan proyek.
-            </small>
-
-            @error('manager_id')
-            <small class="field-error">{{ $message }}</small>
-            @enderror
-          </div>
-
-          {{-- Status --}}
-          <div class="project-field">
-            <label for="status">
-              Status Proyek <span class="required">*</span>
-            </label>
-
-            <div class="project-input-wrapper">
-              <i class="fa-solid fa-list-check"></i>
-
-              <select
-                id="status"
-                name="status"
-                class="@error('status') is-invalid @enderror"
-                required>
-                <option value="planning" @selected(old('status', 'planning' )==='planning' )>
-                  Planning
-                </option>
-                <option value="in_progress" @selected(old('status')==='in_progress' )>
-                  In Progress
-                </option>
-                <option value="completed" @selected(old('status')==='completed' )>
-                  Completed
-                </option>
-                <option value="on_hold" @selected(old('status')==='on_hold' )>
-                  On Hold
-                </option>
-              </select>
-            </div>
-
-            @error('status')
             <small class="field-error">{{ $message }}</small>
             @enderror
           </div>

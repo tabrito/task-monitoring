@@ -17,12 +17,10 @@
       </p>
     </div>
 
-    @if (in_array(auth()->user()->role, ['manager']))
     <a href="{{ route('tasks.create') }}" class="btn-task-primary">
       <i class="fa-solid fa-plus"></i>
       Tambah Task
     </a>
-    @endif
   </div>
 
   @if (session('success'))
@@ -48,14 +46,6 @@
         placeholder="Cari judul atau deskripsi task..."
         value="{{ request('search') }}">
     </div>
-
-    <select name="status" aria-label="Filter status">
-      <option value="">Semua Status</option>
-      <option value="todo" {{ request('status') === 'todo' ? 'selected' : '' }}>To Do</option>
-      <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-      <option value="review" {{ request('status') === 'review' ? 'selected' : '' }}>Review</option>
-      <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
-    </select>
 
     <select name="priority" aria-label="Filter prioritas">
       <option value="">Semua Prioritas</option>
@@ -145,10 +135,10 @@
           <tr>
             <th>No.</th>
             <th>Task</th>
-            <th>Penanggung Jawab</th>
+            <th>Note</th>
+            <th>Proyek</th>
             <th>Deadline</th>
             <th>Progress</th>
-            <th>Status</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -182,7 +172,8 @@
           $progress = max(0, min(100, $progress));
           @endphp
 
-          <tr>
+          <tr class="task-row"
+            onclick="window.location='{{ route('tasks.show', $task) }}'">
             <td class="task-number">
               {{ $tasks->firstItem() + $loop->index }}
             </td>
@@ -193,18 +184,23 @@
                   {{ $task->title }}
                 </span>
                 <span class="task-project">
-                  {{ $task->project?->name ?? 'Belum ada proyek' }}
+                  {{ $task->description ?? 'Belum ada proyek' }}
+                </span>
+              </div>
+            </td>
+
+            <td>
+              <div class="task-note">
+                <span>
+                  {{ $task->note ?? '-' }}
                 </span>
               </div>
             </td>
 
             <td>
               <div class="task-assignee">
-                <div class="task-avatar">
-                  {{ strtoupper(substr($task->assignee?->name ?? 'U', 0, 1)) }}
-                </div>
                 <span>
-                  {{ $task->assignee?->name ?? 'Belum ditentukan' }}
+                  {{ $task->project->name ?? '-' }}
                 </span>
               </div>
             </td>
@@ -235,39 +231,18 @@
             </td>
 
             <td>
-              <span class="task-status {{ $statusClasses[$status] ?? 'task-status-todo' }}">
-                <span class="task-status-dot"></span>
-                {{ $statusLabels[$status] ?? ucfirst(str_replace('_', ' ', $status)) }}
-              </span>
-            </td>
-
-            <td>
-              <div class="task-actions">
+              <div class="task-actions" onclick="event.stopPropagation();">
                 {{-- Detail Task --}}
-                <a
-                  href="{{ route('tasks.show', $task) }}"
-                  class="task-action-btn task-action-detail"
-                  title="Detail Task"
-                  aria-label="Detail Task">
-                  <i class="fa-solid fa-eye"></i>
-                </a>
 
-                {{-- Edit: Admin dan Manager proyek terkait --}}
-                @if (
-                auth()->user()->role === 'manager' &&
-                $task->project?->manager_id === auth()->id()
-                )
                 <a
                   href="{{ route('tasks.edit', $task) }}"
                   class="task-action-btn task-action-edit"
                   title="Edit Task"
                   aria-label="Edit Task">
                   <i class="fa-solid fa-pen-to-square"></i>
+                  Edit
                 </a>
-                @endif
 
-                {{-- Hapus: hanya Admin --}}
-                @if (auth()->user()->role === 'manager')
                 <form
                   action="{{ route('tasks.destroy', $task->id) }}"
                   method="POST"
@@ -282,9 +257,9 @@
                     title="Hapus Task"
                     aria-label="Hapus Task">
                     <i class="fa-solid fa-trash"></i>
+                    Delete
                   </button>
                 </form>
-                @endif
               </div>
             </td>
           </tr>

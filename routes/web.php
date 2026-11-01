@@ -18,9 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class);
     Route::resource('tasks', TaskController::class);
 
-    Route::middleware('role:admin')->group(function () {
-        Route::resource('users', UserController::class)
-            ->except(['show']);
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::resource('users', UserController::class);
     });
 
     Route::get('/profile', [
@@ -43,6 +42,9 @@ Route::middleware('auth')->group(function () {
         'updateProgress'
     ])->name('tasks.updateProgress');
     Route::resource('tasks', TaskController::class);
+
+    Route::patch('/tasks/{task}/note', [TaskController::class, 'updateNote'])
+        ->name('tasks.updateNote');
 });
 
 require __DIR__ . '/auth.php';

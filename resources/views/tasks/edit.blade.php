@@ -60,7 +60,7 @@
               @enderror
             </div>
 
-            <div class="task-form-field full-width">
+            <div class="task-form-field">
               <label for="description">Deskripsi</label>
               <textarea name="description" id="description" rows="4"
                 placeholder="Jelaskan detail tugas">{{ old('description', $task->description) }}</textarea>
@@ -69,6 +69,21 @@
               @enderror
             </div>
 
+            <div class="task-form-field">
+              <label for="note">Note</label>
+              <textarea name="note" id="note" rows="4"
+                placeholder="Berikan catatan tugas">{{ old('note', $task->note) }}</textarea>
+              @error('note')
+              <small class="task-field-error">{{ $message }}</small>
+              @enderror
+            </div>
+          </div>
+        </div>
+
+        <div class="task-form-section">
+          <h3>Pengaturan Pengerjaan</h3>
+
+          <div class="task-form-grid">
             <div class="task-form-field">
               <label for="project_id">Proyek <span>*</span></label>
               <select name="project_id" id="project_id" required>
@@ -85,28 +100,6 @@
               @enderror
             </div>
 
-            <div class="task-form-field">
-              <label for="assigned_to">Penanggung Jawab</label>
-              <select name="assigned_to" id="assigned_to">
-                <option value="">Belum Ditentukan</option>
-                @foreach ($users as $user)
-                <option value="{{ $user->id }}"
-                  {{ old('assigned_to', $task->assigned_to) == $user->id ? 'selected' : '' }}>
-                  {{ $user->name }}
-                </option>
-                @endforeach
-              </select>
-              @error('assigned_to')
-              <small class="task-field-error">{{ $message }}</small>
-              @enderror
-            </div>
-          </div>
-        </div>
-
-        <div class="task-form-section">
-          <h3>Pengaturan Pengerjaan</h3>
-
-          <div class="task-form-grid">
             <div class="task-form-field">
               <label for="deadline">Deadline</label>
               <input type="date" name="deadline" id="deadline"
@@ -127,21 +120,6 @@
                 @endforeach
               </select>
               @error('priority')
-              <small class="task-field-error">{{ $message }}</small>
-              @enderror
-            </div>
-
-            <div class="task-form-field">
-              <label for="status">Status <span>*</span></label>
-              <select name="status" id="status" required>
-                @foreach (['todo' => 'To Do', 'in_progress' => 'In Progress', 'review' => 'Review', 'completed' => 'Completed'] as $value => $label)
-                <option value="{{ $value }}"
-                  {{ old('status', $task->status) == $value ? 'selected' : '' }}>
-                  {{ $label }}
-                </option>
-                @endforeach
-              </select>
-              @error('status')
               <small class="task-field-error">{{ $message }}</small>
               @enderror
             </div>

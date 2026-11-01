@@ -94,9 +94,8 @@
       <thead>
         <tr>
           <th>Nama Tugas</th>
+          <th>Catatan</th>
           <th>Proyek</th>
-          <th>Penanggung Jawab</th>
-          <th>Status</th>
           <th style="min-width: 130px;">Progres</th>
         </tr>
       </thead>
@@ -126,19 +125,13 @@
           <td>
             <div class="task-title">{{ $task->title }}</div>
             <small class="task-deadline">
-              Deadline: {{ $task->deadline?->format('d M Y') ?? '-' }}
+              {{ $task->description ?? '-' }}
             </small>
           </td>
 
+          <td>{{ $task->note ?? '-' }}</td>
+
           <td>{{ $task->project?->name ?? '-' }}</td>
-
-          <td>{{ $task->assignee?->name ?? 'Belum ditugaskan' }}</td>
-
-          <td>
-            <span class="status-badge {{ $statusClasses[$task->status] ?? 'status-todo' }}">
-              {{ $statusLabels[$task->status] ?? ucfirst(str_replace('_', ' ', $task->status)) }}
-            </span>
-          </td>
 
           <td>
             <div class="d-flex justify-content-between mb-2">

@@ -66,6 +66,13 @@
     border: 1px solid #762b38;
 }
 
+.task-detail-add-note {
+    color: #762b38;
+    background: #fff;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
 .task-detail-edit:hover {
     background: #5e202b;
     color: #fff;
@@ -167,7 +174,6 @@
     color: #6f625e;
     font-size: 14px;
     line-height: 1.8;
-    white-space: pre-line;
     overflow-wrap: anywhere;
 }
 

@@ -224,7 +224,7 @@
 
 .task-name {
     color: #382a25;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 650;
     white-space: normal;
     overflow: visible;
@@ -237,6 +237,13 @@
     overflow: hidden;
     color: #96877f;
     font-size: 11px;
+    text-overflow: ellipsis;
+}
+
+.task-note {
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 650;
     text-overflow: ellipsis;
 }
 
@@ -361,16 +368,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
+    gap: 6px;
+    min-height: 32px;
+    padding: 7px 10px;
     border: 1px solid transparent;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 12px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    transition: 0.2s ease;
+    white-space: nowrap;
+    transition: background 0.15s ease;
 }
 
 .task-action-detail {

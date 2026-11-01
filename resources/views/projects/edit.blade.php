@@ -77,45 +77,6 @@
               <small class="field-error">{{ $message }}</small>
               @enderror
             </div>
-
-            <div class="project-field">
-              <label for="manager_id">Manajer Proyek <span>*</span></label>
-              <select id="manager_id" name="manager_id" required>
-                <option value="">Pilih manajer proyek</option>
-                @foreach ($users as $user)
-                <option
-                  value="{{ $user->id }}"
-                  @selected((string) old('manager_id', $project->manager_id) === (string) $user->id)
-                  >
-                  {{ $user->name }}
-                </option>
-                @endforeach
-              </select>
-              @error('manager_id')
-              <small class="field-error">{{ $message }}</small>
-              @enderror
-            </div>
-
-            <div class="project-field">
-              <label for="status">Status Proyek <span>*</span></label>
-              <select id="status" name="status" required>
-                <option value="on_track" @selected(old('status', $project->status) === 'on_track')>
-                  Sesuai Jadwal
-                </option>
-                <option value="concern" @selected(old('status', $project->status) === 'concern')>
-                  Perlu Perhatian
-                </option>
-                <option value="overdue" @selected(old('status', $project->status) === 'overdue')>
-                  Terlambat
-                </option>
-                <option value="completed" @selected(old('status', $project->status) === 'completed')>
-                  Selesai
-                </option>
-              </select>
-              @error('status')
-              <small class="field-error">{{ $message }}</small>
-              @enderror
-            </div>
           </div>
         </div>
 
