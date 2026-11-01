@@ -1,0 +1,88 @@
+.taskflow-layout {
+    min-height: 100vh;
+}
+
+.taskflow-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 1000;
+    width: 250px;
+    padding: 24px 16px;
+    overflow-y: auto;
+    color: white;
+    font-weight: bold;
+    background: var(--primary);
+}
+
+.taskflow-brand {
+    padding: 0 12px 28px;
+    color: white;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.taskflow-sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    color: #f8e9ed;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.taskflow-sidebar a:hover,
+.taskflow-sidebar a.active {
+    color: white;
+    background: var(--primary-dark);
+}
+
+.taskflow-sidebar a i {
+    width: 20px;
+    text-align: center;
+}
+
+.taskflow-main {
+    min-height: 100vh;
+    margin-left: 250px;
+}
+
+.taskflow-header {
+    min-height: 76px;
+    padding: 16px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+}
+
+.taskflow-content {
+    padding: 30px;
+}
+
+.taskflow-user {
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .taskflow-sidebar {
+        position: static;
+        width: 100%;
+    }
+
+    .taskflow-main {
+        margin-left: 0;
+    }
+
+    .taskflow-header {
+        padding: 16px;
+    }
+
+    .taskflow-content {
+        padding: 18px;
+    }
+}

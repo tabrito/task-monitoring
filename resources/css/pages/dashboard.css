@@ -1,0 +1,253 @@
+/* Dashboard statistics */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.stats-grid-item {
+    min-width: 0;
+}
+
+.stat-card {
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #eee5e3;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(75, 48, 40, 0.04);
+}
+
+.stat-card .card-body {
+    padding: 22px;
+}
+
+.stat-card.maroon-accent {
+    border-top: 4px solid #800020;
+}
+
+.stat-card.brown-accent {
+    border-top: 4px solid #4b3028;
+}
+
+.stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-label {
+    color: #82736e;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #f7e9ed;
+    color: #800020;
+    font-size: 18px;
+}
+
+.brown-accent .stat-icon {
+    color: #4b3028;
+    background: #f0e8e6;
+}
+
+.stat-number {
+    margin-bottom: 5px;
+    color: #4b3028;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-caption {
+    color: #82736e;
+    font-size: 12px;
+}
+
+/* Recent tasks card */
+.content-card {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #eee5e3;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(75, 48, 40, 0.04);
+}
+
+.content-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #eee5e3;
+}
+
+.section-title {
+    margin: 0 0 5px;
+    color: #4b3028;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.section-description {
+    margin: 0;
+    color: #82736e;
+    font-size: 13px;
+}
+
+.btn-maroon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    border: 1px solid #800020;
+    border-radius: 7px;
+    background: #800020;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.btn-maroon:hover {
+    background: #570017;
+    border-color: #570017;
+    color: #fff;
+}
+
+/* Recent tasks table */
+.dashboard-table {
+    margin-bottom: 0;
+}
+
+.dashboard-table thead th {
+    padding: 14px 18px;
+    background: #faf6f7;
+    color: #4b3028;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid #eee5e3;
+}
+
+.dashboard-table tbody td {
+    padding: 16px 18px;
+    border-bottom: 1px solid #f0e8e6;
+}
+
+.dashboard-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.task-title {
+    margin-bottom: 4px;
+    color: #4b3028;
+    font-weight: 700;
+}
+
+.task-deadline {
+    color: #82736e;
+    font-size: 12px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-todo {
+    color: #5f6368;
+    background: #eceff1;
+}
+
+.status-progress {
+    color: #084298;
+    background: #cfe2ff;
+}
+
+.status-review {
+    color: #997404;
+    background: #fff3cd;
+}
+
+.status-completed {
+    color: #146c43;
+    background: #d1e7dd;
+}
+
+/* Progress bar */
+.dashboard-table .progress {
+    height: 7px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #f0e8e6;
+}
+
+.dashboard-table .progress-bar {
+    border-radius: 10px;
+    background: #800020;
+}
+
+.progress-value {
+    color: #4b3028;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Empty state */
+.empty-state {
+    padding: 45px 20px !important;
+    text-align: center;
+    color: #82736e;
+}
+
+.empty-icon {
+    display: block;
+    margin-bottom: 12px;
+    color: #b9a6a9;
+    font-size: 32px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card .card-body {
+        padding: 18px;
+    }
+
+    .content-card-header {
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .dashboard-table {
+        min-width: 750px;
+    }
+}
